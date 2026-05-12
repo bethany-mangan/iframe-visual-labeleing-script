@@ -1,5 +1,5 @@
 // Visual Labeling bridge: forwards postMessage traffic between the
-// Stargate opener and any same-origin SDK-enabled frame. See VL_BRIDGE.md.
+// Amplitude opener and any same-origin SDK-enabled frame. See VL_BRIDGE.md.
 (function setupVLBridge() {
   var FRAME_SELECTOR = "iframe, frame";
   var MAX_PENDING_MESSAGES = 20;
@@ -10,8 +10,8 @@
   var OBSERVED_FRAME_ATTRIBUTES = ["src", "srcdoc"];
   var SCAN_DELAY_MS = 0;
 
-  var stargateWin = window.opener;
-  if (!stargateWin) return;
+  var amplitudeWin = window.opener;
+  if (!amplitudeWin) return;
 
   var scanScheduled = false;
   var pending = [];
@@ -65,7 +65,7 @@
       var relay = new MessageEvent(MESSAGE_EVENT_TYPE, {
         data: event.data,
         origin: event.origin,
-        source: stargateWin
+        source: amplitudeWin
       });
       frameWindow.dispatchEvent(relay);
       return true;
@@ -80,7 +80,7 @@
     if (!frameWindow) return;
 
     try {
-      frameWindow.opener = stargateWin;
+      frameWindow.opener = amplitudeWin;
     } catch (e) {
       console.warn("[VL bridge] could not set frame.contentWindow.opener", e);
     }
@@ -238,8 +238,8 @@
   }
 
   window.addEventListener(MESSAGE_EVENT_TYPE, function (event) {
-    // Only forward messages from the Stargate window on Amplitude domains.
-    if (event.source !== stargateWin || !isAllowedOrigin(event.origin)) return;
+    // Only forward messages from the Amplitude window on Amplitude domains.
+    if (event.source !== amplitudeWin || !isAllowedOrigin(event.origin)) return;
     queueMessage(event);
   });
 
